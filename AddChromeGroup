@@ -1,0 +1,53 @@
+# Remediation Script (Remediate-AddChromeGroup.ps1)
+# Uses Microsoft Graph to add the current device to a specified security group.
+
+# --- App Registration Details ---
+$tenantId = "YOUR_TENANT_ID"
+$clientId = "YOUR_CLIENT_ID"
+$clientSecret = "YOUR_CLIENT_SECRET_VALUE"
+$groupId = "YOUR_SECURITY_GROUP_OBJECT_ID"
+
+# --- Get Device Information ---
+# Get the device ID from the Intune device properties
+$deviceId = (Get-WmiObject -Class Win32_ComputerSystemProduct).UUID
+# Note: You may need a more reliable method to get the Entra ID device object ID,
+# but the UUID is often a good starting point. Another option is using the device name.
+
+# --- Authenticate to Microsoft Graph API ---
+$tokenUrl = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
+$body = @{
+    client_id     = $clientId
+    client_secret = $clientSecret
+    scope         = "https://graph.microsoft.com/.default"
+    grant_type    = "client_credentials"
+}
+
+try {
+    $tokenResponse = Invoke-RestMethod -Uri $tokenUrl -Method Post -Body $body
+    $accessToken = $tokenResponse.access_token
+}
+catch {
+    Write-Error "Failed to get access token: $_"
+    exit 1
+}
+
+# --- Add Device to Group ---
+$graphUrl = "https://graph.microsoft.com/v1.0/groups/$groupId/members/\$ref"
+$headers = @{
+    "Authorization" = "Bearer $accessToken"
+    "Content-Type"  = "application/json"
+}
+$body = @{
+    "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$deviceId"
+} | ConvertTo-Json
+
+try {
+    Invoke-RestMethod -Uri $graphUrl -Method Post -Headers $headers -Body $body
+    Write-Host "Successfully added device $deviceId to group $groupId."
+}
+catch {
+    Write-Error "Failed to add device to group: $_"
+    exit 1
+}
+
+exit 0

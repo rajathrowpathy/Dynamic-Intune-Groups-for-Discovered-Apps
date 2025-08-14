@@ -87,7 +87,7 @@ On the Settings page, upload your two scripts:
 
 Detection script file: Detect-Chrome.ps1
 
-Remediation script file: Remediate-AddDeviceToGroup.ps1
+Remediation script file: AddChromeGroup
 
 Leave other settings as default unless you have a specific reason to change them.
 

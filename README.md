@@ -85,7 +85,7 @@ Give it a descriptive name and description.
 
 On the Settings page, upload your two scripts:
 
-Detection script file: Detect-Chrome.ps1
+Detection script file: Detect-Chrome
 
 Remediation script file: AddChromeGroup
 

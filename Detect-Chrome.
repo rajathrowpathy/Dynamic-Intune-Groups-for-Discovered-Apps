@@ -1,0 +1,15 @@
+# Detection Script (Detect-Chrome.ps1)
+# Checks for Google Chrome installation and exits with code 1 if found.
+
+# Look for the Chrome installation path in the registry
+$chromePath = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe' -ErrorAction SilentlyContinue
+
+if ($null -ne $chromePath) {
+    # Chrome is found, exit with code 1 to trigger remediation.
+    Write-Host "Google Chrome detected. Remediation is required."
+    exit 1
+} else {
+    # Chrome is not found, exit with code 0.
+    Write-Host "Google Chrome not detected. Device is compliant."
+    exit 0
+}
